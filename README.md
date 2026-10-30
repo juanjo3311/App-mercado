@@ -82,6 +82,19 @@ Necesitas una cuenta de **Apple Developer** (99 USD al año).
   ```
   Luego instala desde la app TestFlight.
 
+## Versión web instalable (PWA)
+
+```bash
+npm run build:web     # genera dist/ con manifest, íconos y Service Worker
+```
+
+Publica la carpeta `dist/` en un hosting con HTTPS (por ejemplo, arrastrándola a https://app.netlify.com/drop;
+el archivo `_redirects` ya está incluido). En el iPhone ábrela en **Safari** › botón Compartir ›
+**Agregar a pantalla de inicio**. Abre como app y funciona sin internet después de la primera visita.
+
+En la PWA no hay notificación diaria de las 6:00 p. m.: iOS solo permite notificaciones web enviadas
+desde un servidor. Los datos de la PWA se guardan en ese iPhone, separados de Safari y de la app nativa.
+
 ## Desarrollo
 
 ```bash

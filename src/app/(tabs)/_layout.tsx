@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { ColorValue } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Tabs } from 'expo-router/js-tabs';
 import { useStore } from '../../lib/store';
 import { useColors } from '../../lib/theme';
@@ -14,14 +15,16 @@ function icon(name: IconName, focusedName: IconName) {
 export default function TabsLayout() {
   const c = useColors();
   const { marketCount } = useStore();
+  const insets = useSafeAreaInsets();
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: c.primary,
         tabBarInactiveTintColor: c.textMuted,
-        tabBarStyle: { backgroundColor: c.surface, borderTopColor: c.border },
-        tabBarLabelStyle: { fontSize: 12, fontWeight: '600' },
+        // 4 px más que el alto por defecto (49) para que la etiqueta no se corte en la web.
+        tabBarStyle: { backgroundColor: c.surface, borderTopColor: c.border, height: 53 + insets.bottom },
+        tabBarLabelStyle: { fontWeight: '600', lineHeight: 14 },
         sceneStyle: { backgroundColor: c.background },
       }}
     >

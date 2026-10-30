@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+    <!-- viewport-fit=cover permite usar las zonas seguras (notch, barra de inicio) en iPhone -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover" />
+    <title>Mercado Casa</title>
+    <meta name="description" content="Despensa, mercado y recetas de la casa de Juanjo y Anyela." />
+
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#F6F5F1" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#121412" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+
+    <!-- iOS: "Agregar a pantalla de inicio" y apertura como app -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Mercado" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+
+    <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->
+    <style id="expo-reset">
+      /* These styles make the body full-height */
+      html,
+      body {
+        height: 100%;
+      }
+      /* These styles disable body scrolling if you are using <ScrollView> */
+      body {
+        overflow: hidden;
+        background-color: #F6F5F1;
+      }
+      @media (prefers-color-scheme: dark) {
+        body {
+          background-color: #121412;
+        }
+      }
+      /* These styles make the root element full-height */
+      #root {
+        display: flex;
+        height: 100%;
+        flex: 1;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Use static rendering with Expo Router to support running without JavaScript. -->
+    <noscript> Necesitas activar JavaScript para usar esta app. </noscript>
+    <!-- The root element for your Expo app. -->
+    <div id="root"></div>
+    <script>
+      // El Service Worker (/sw.js) solo existe en la compilación de producción (npm run build:web).
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+          fetch('/sw.js', { method: 'HEAD', cache: 'no-store' })
+            .then(function (res) {
+              var type = res.headers.get('content-type') || '';
+              if (res.ok && type.indexOf('javascript') !== -1) {
+                return navigator.serviceWorker.register('/sw.js');
+              }
+            })
+            .catch(function () {});
+        });
+      }
+    </script>
+  </body>
+</html>
