@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { FlatList, Pressable, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { RecipeCard } from '../../components/RecipeCard';
-import { EmptyState, Fab, Header, Screen, SearchBar, Segmented } from '../../components/ui';
+import { Card, EmptyState, Fab, Header, IconButton, Screen, SearchBar, Segmented } from '../../components/ui';
 import { analyzeRecipe, buildPantryIndex, normalizeText } from '../../lib/matching';
 import { useStore } from '../../lib/store';
 import { radius, space, useColors } from '../../lib/theme';
@@ -13,7 +13,7 @@ type MealFilter = 'todas' | Meal;
 
 export default function RecetasScreen() {
   const c = useColors();
-  const { recipes, pantry } = useStore();
+  const { recipes, pantry, aiSuggestions } = useStore();
   const [meal, setMeal] = useState<MealFilter>('todas');
   const [cookableFirst, setCookableFirst] = useState(true);
   const [query, setQuery] = useState('');
@@ -47,6 +47,7 @@ export default function RecetasScreen() {
       <Header
         title="Recetas"
         subtitle={cookableCount ? `${cookableCount} lista${cookableCount === 1 ? '' : 's'} para cocinar` : `${recipes.length} recetas`}
+        right={<IconButton icon="sparkles" label="Crear recetas con IA" color={c.primary} onPress={() => router.push('/recetas-ia')} />}
       />
       <View style={{ paddingHorizontal: space.lg, gap: space.sm, paddingBottom: space.sm }}>
         <SearchBar value={query} onChangeText={setQuery} placeholder="Buscar receta" />
@@ -94,6 +95,21 @@ export default function RecetasScreen() {
           />
         )}
         ItemSeparatorComponent={() => <View style={{ height: space.md }} />}
+        ListHeaderComponent={
+          aiSuggestions.length ? (
+            <Card
+              onPress={() => router.push('/recetas-ia')}
+              style={{ flexDirection: 'row', alignItems: 'center', gap: space.md, marginBottom: space.md, borderColor: c.primary }}
+            >
+              <Ionicons name="sparkles" size={22} color={c.primary} />
+              <Text style={{ color: c.text, fontSize: 15, fontWeight: '600', flex: 1 }}>
+                {aiSuggestions.length} idea{aiSuggestions.length === 1 ? '' : 's'} nueva{aiSuggestions.length === 1 ? '' : 's'} de la IA
+                con lo que tienes
+              </Text>
+              <Ionicons name="chevron-forward" size={20} color={c.textMuted} />
+            </Card>
+          ) : undefined
+        }
         contentContainerStyle={{ paddingHorizontal: space.lg, paddingBottom: 110, paddingTop: space.xs }}
         keyboardShouldPersistTaps="handled"
         ListEmptyComponent={<EmptyState icon="restaurant-outline" title="No hay recetas aquí" text="Crea una con el botón +" />}

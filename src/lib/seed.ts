@@ -268,6 +268,7 @@ export function buildSeedData(): AppData {
         status: 'agotado',
         inMarket: false,
         checked: false,
+        updatedAt: 0,
       });
     }
   }
@@ -277,6 +278,7 @@ export function buildSeedData(): AppData {
     meal,
     ingredients,
     steps,
+    updatedAt: 0,
   }));
-  return { version: 1, pantry, recipes };
+  return { version: 2, pantry, recipes, deleted: {} };
 }

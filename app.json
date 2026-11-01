@@ -35,7 +35,8 @@
           "color": "#2F7D57"
         }
       ],
-      "expo-background-task"
+      "expo-background-task",
+      "expo-secure-store"
     ]
   }
 }

@@ -275,6 +275,8 @@ export function ConfirmDialog({
   title,
   message,
   confirmLabel = 'Eliminar',
+  confirmIcon = 'trash-outline',
+  confirmVariant = 'danger',
   onConfirm,
   onCancel,
 }: {
@@ -282,6 +284,8 @@ export function ConfirmDialog({
   title: string;
   message?: string;
   confirmLabel?: string;
+  confirmIcon?: IconName;
+  confirmVariant?: 'danger' | 'primary';
   onConfirm: () => void;
   onCancel: () => void;
 }) {
@@ -294,7 +298,7 @@ export function ConfirmDialog({
           <Text style={{ color: c.text, fontSize: 19, fontWeight: '700' }}>{title}</Text>
           {message ? <Text style={{ color: c.textMuted, fontSize: 15, lineHeight: 21 }}>{message}</Text> : null}
           <View style={{ gap: space.sm, marginTop: space.sm }}>
-            <Button label={confirmLabel} variant="danger" icon="trash-outline" onPress={onConfirm} />
+            <Button label={confirmLabel} variant={confirmVariant} icon={confirmIcon} onPress={onConfirm} />
             <Button label="Cancelar" variant="secondary" onPress={onCancel} />
           </View>
         </Pressable>

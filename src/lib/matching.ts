@@ -75,7 +75,7 @@ export function analyzeRecipe(recipe: Recipe, index: PantryIndex): RecipeAnalysi
   return { ingredients, available, total, percent, cookable: total > 0 && available === total };
 }
 
-export function hasEgg(recipe: Recipe): boolean {
+export function hasEgg(recipe: Pick<Recipe, 'ingredients'>): boolean {
   return recipe.ingredients.some((i) => nameKey(i).split(' ').includes('huevo'));
 }
 

@@ -61,6 +61,8 @@ function RootNavigator() {
       <Stack.Screen name="receta/[id]" options={{ title: 'Receta' }} />
       <Stack.Screen name="receta-form" options={{ presentation: 'modal', title: 'Receta' }} />
       <Stack.Screen name="producto" options={{ presentation: 'modal', title: 'Producto' }} />
+      <Stack.Screen name="ajustes" options={{ presentation: 'modal', title: 'Ajustes' }} />
+      <Stack.Screen name="recetas-ia" options={{ title: 'Recetas con IA' }} />
     </Stack>
   );
 }

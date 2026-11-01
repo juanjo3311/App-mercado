@@ -28,12 +28,12 @@ export default function RecetaFormScreen() {
 
   const ingredients = lines(ingredientsText);
   const index = useMemo(() => buildPantryIndex(pantry), [pantry]);
-  const eggBreakfast = meal === 'desayuno' && hasEgg({ id: '', name, meal, ingredients, steps: [] });
+  const eggBreakfast = meal === 'desayuno' && hasEgg({ ingredients });
   const valid = name.trim().length > 0 && ingredients.length > 0;
 
   const save = () => {
     if (!valid) return;
-    saveRecipe({ id: existing?.id, name: name.trim(), meal, ingredients, steps: lines(stepsText) });
+    saveRecipe({ id: existing?.id, name: name.trim(), meal, ingredients, steps: lines(stepsText), source: existing?.source });
     router.back();
   };
 

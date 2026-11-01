@@ -20,6 +20,7 @@ export function RecipeCard({ recipe, analysis, onPress }: { recipe: Recipe; anal
         <View style={{ flex: 1 }}>
           <Text style={{ color: c.textMuted, fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 }}>
             {MEAL_LABELS[recipe.meal]}
+            {recipe.source === 'ia' ? ' · Creada con IA' : ''}
           </Text>
           <Text style={{ color: c.text, fontSize: 17, fontWeight: '700' }} numberOfLines={2}>
             {recipe.name}

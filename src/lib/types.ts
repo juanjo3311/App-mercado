@@ -23,6 +23,8 @@ export type PantryItem = {
   inMarket: boolean;
   /** Marcado como "en el carrito" en la lista del mercado */
   checked: boolean;
+  /** Última modificación (ms). Sirve para combinar cambios entre celulares. */
+  updatedAt: number;
 };
 
 export const MEALS = ['desayuno', 'almuerzo', 'comida'] as const;
@@ -40,6 +42,9 @@ export type Recipe = {
   meal: Meal;
   ingredients: string[];
   steps: string[];
+  updatedAt: number;
+  /** "ia" si la creó la inteligencia artificial */
+  source?: 'ia';
 };
 
 export const STATUS_LABELS: Record<Status, string> = {
@@ -55,9 +60,18 @@ export const STATUS_SHORT: Record<Status, string> = {
 };
 
 export type AppData = {
-  version: 1;
+  version: 2;
   pantry: PantryItem[];
   recipes: Recipe[];
+  /** id → momento en que se borró (para que el borrado también se sincronice) */
+  deleted: Record<string, number>;
+};
+
+/** Receta propuesta por la IA que todavía no se ha guardado. */
+export type AiSuggestion = Omit<Recipe, 'updatedAt' | 'source'> & {
+  /** Por qué la IA la propone (qué insumos aprovecha) */
+  why: string;
+  createdAt: number;
 };
 
 /** Receta elegida para cada noche, por fecha de Bogotá (YYYY-MM-DD). */

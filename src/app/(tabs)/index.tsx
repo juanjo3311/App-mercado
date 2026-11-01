@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 import { useMemo } from 'react';
 import { Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { percentColor } from '../../components/RecipeCard';
-import { Button, Card, Header, ProgressBar, Screen, SectionLabel, StatusPill } from '../../components/ui';
+import { Button, Card, Header, IconButton, ProgressBar, Screen, SectionLabel, StatusPill } from '../../components/ui';
 import { useStore } from '../../lib/store';
 import { pickBreakfast, tonightSuggestion, Suggestion } from '../../lib/suggest';
 import { radius, space, statusColor, useColors } from '../../lib/theme';
@@ -82,7 +82,7 @@ function PermissionBanner() {
 
 export default function HoyScreen() {
   const c = useColors();
-  const { pantry, recipes, plan, marketCount } = useStore();
+  const { pantry, recipes, plan, marketCount, aiSuggestions, syncStatus } = useStore();
 
   const tonight = useMemo(() => tonightSuggestion(recipes, pantry, plan), [recipes, pantry, plan]);
   const breakfast = useMemo(() => pickBreakfast(recipes, pantry), [recipes, pantry]);
@@ -101,7 +101,18 @@ export default function HoyScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={{ paddingBottom: space.xl }}>
-        <Header title="Hola, Juanjo y Anyela" subtitle={todayLabel()} />
+        <Header
+          title="Hola, Juanjo y Anyela"
+          subtitle={todayLabel()}
+          right={
+            <IconButton
+              icon={syncStatus === 'offline' ? 'cloud-offline-outline' : 'settings-outline'}
+              label="Ajustes, cuenta e IA"
+              color={syncStatus === 'offline' ? c.poco : c.text}
+              onPress={() => router.push('/ajustes')}
+            />
+          }
+        />
         <View style={{ paddingHorizontal: space.lg, gap: space.md }}>
           <PermissionBanner />
 
@@ -149,6 +160,16 @@ export default function HoyScreen() {
               <Text style={{ color: c.textMuted, fontSize: 14 }}>y {runningLow.length - 8} más…</Text>
             ) : null}
           </Card>
+
+          {aiSuggestions.length ? (
+            <Card onPress={() => router.push('/recetas-ia')} style={{ flexDirection: 'row', alignItems: 'center', gap: space.md }}>
+              <Ionicons name="sparkles" size={22} color={c.primary} />
+              <Text style={{ color: c.text, fontSize: 15, fontWeight: '600', flex: 1 }}>
+                La IA tiene {aiSuggestions.length} idea{aiSuggestions.length === 1 ? '' : 's'} de receta con lo que tienes
+              </Text>
+              <Ionicons name="chevron-forward" size={20} color={c.textMuted} />
+            </Card>
+          ) : null}
 
           <Button
             label={marketCount ? `Ir al mercado · ${marketCount} pendiente${marketCount === 1 ? '' : 's'}` : 'Ir al mercado'}
