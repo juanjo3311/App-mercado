@@ -122,6 +122,7 @@ export async function generateRecipes(opts: GenerateOptions): Promise<AiSuggesti
       steps: r.steps.map((s) => s.trim()).filter(Boolean),
       why: r.why.trim(),
       createdAt: now,
+      by: 'ia' as const,
     }))
     .filter((r) => r.name && r.ingredients.length && !existing.has(nameKey(r.name)))
     // Regla de la casa: ningún desayuno sugerido lleva huevo.

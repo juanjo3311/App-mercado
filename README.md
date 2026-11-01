@@ -12,7 +12,8 @@ y, si configuras la nube, se comparte entre los celulares del hogar.
 - **Recetas**: porcentaje de ingredientes que tienes (sin importar tildes, mayúsculas ni plurales), colores por estado, "Añadir lo que falta al mercado" y orden por las que puedes cocinar ya.
 - **Notificación diaria a las 6:00 p. m. (hora de Bogotá)**: "Esta noche: <receta>. Tienes X de Y ingredientes." Al tocarla se abre la receta.
 - **Cuentas y hogar en la nube** (⚙️ en Hoy): cada persona inicia sesión con su correo y ambos se unen al mismo hogar con un código. Despensa, mercado (incluido el carrito) y recetas quedan guardados en la nube y sincronizados en tiempo real entre los dos celulares; si no hay internet, la app sigue funcionando y sincroniza al volver la conexión.
-- **Recetas con IA** (✨ en Recetas): Claude propone recetas nuevas con lo que hay en la despensa. Con "Ideas automáticas cada día" la app propone sola un desayuno (sin huevo), un almuerzo y una comida una vez al día; tú eliges cuáles guardar.
+- **Ideas de recetas gratis** (💡 en Recetas): la app arma recetas con lo que hay en la despensa, empezando por lo que se está acabando, sin internet y sin costo. Con "Ideas automáticas cada día" (activado por defecto) propone sola un desayuno (sin huevo), un almuerzo y una comida una vez al día; tú eliges cuáles guardar.
+- **IA de Claude (opcional, de pago)**: si guardas una clave de Anthropic aparece el botón "Crear con IA (de pago)" para recetas más variadas. Solo gasta cuando tocas ese botón; lo automático nunca usa la IA.
 
 ### Cómo funciona la notificación
 
@@ -73,16 +74,22 @@ Se usa Supabase (plan gratis).
 Si los dos cambian algo al mismo tiempo, la app combina los cambios producto por producto y receta por receta;
 solo si ambos cambian el mismo producto gana el cambio más reciente.
 
-## Recetas con IA (Claude)
+## Ideas de recetas
+
+**Gratis (por defecto):** el cocinero de la app (`src/lib/localChef.ts`) reconoce qué es cada producto de la
+despensa (proteína, arroz, pasta, verdura, fruta, lácteo…) y lo combina con recetas base de cocina casera
+colombiana: arroz con…, sudado, sopa, pasta, ensalada, frijoles, salteado, arepa rellena, huevos pericos (nunca de
+desayuno) y desayunos como arepa con queso, fruta con yogurt, tostadas, batidos o avena. Solo usa lo que está en
+"Hay" o "Queda poco" (más básicos como sal, aceite y ajo), da prioridad a lo que se está acabando y no repite
+recetas que ya tienes. No usa internet ni cuesta nada.
+
+**Con IA de Claude (opcional, de pago):**
 
 1. Crea una cuenta en https://console.anthropic.com, carga saldo (Billing) y crea una clave en **API Keys**.
-2. En la app: ⚙️ › **Recetas con IA** › pega la clave › **Guardar clave**. Se guarda cifrada solo en ese celular
-   (no se sube a la nube del hogar); cada persona pone la suya o la misma en ambos celulares.
-3. En **Recetas › ✨** elige el momento y toca **Crear recetas**, o activa **Ideas automáticas cada día**.
-
-Usa el modelo Claude Opus 5.5. Cada tanda de 3 recetas cuesta unos pocos centavos de dólar; el modo automático
-hace como máximo una tanda al día por celular. Las recetas usan los nombres de tu despensa para que el
-porcentaje de ingredientes funcione, y los desayunos nunca llevan huevo.
+2. En la app: ⚙️ › **IA de Claude** › pega la clave › **Guardar clave**. Se guarda cifrada solo en ese celular
+   (no se sube a la nube del hogar).
+3. En **Recetas › 💡** aparece **Crear con IA (de pago)**. Cada toque cuesta unos pocos centavos de dólar (modelo
+   Claude Opus 5.5). La app nunca llama a la IA por su cuenta; si borras la clave, no puede gastar nada.
 
 ## Probar en el celular con Expo Go
 

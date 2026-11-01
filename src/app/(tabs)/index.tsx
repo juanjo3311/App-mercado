@@ -163,9 +163,9 @@ export default function HoyScreen() {
 
           {aiSuggestions.length ? (
             <Card onPress={() => router.push('/recetas-ia')} style={{ flexDirection: 'row', alignItems: 'center', gap: space.md }}>
-              <Ionicons name="sparkles" size={22} color={c.primary} />
+              <Ionicons name="bulb" size={22} color={c.primary} />
               <Text style={{ color: c.text, fontSize: 15, fontWeight: '600', flex: 1 }}>
-                La IA tiene {aiSuggestions.length} idea{aiSuggestions.length === 1 ? '' : 's'} de receta con lo que tienes
+                {aiSuggestions.length} idea{aiSuggestions.length === 1 ? '' : 's'} de receta con lo que tienes
               </Text>
               <Ionicons name="chevron-forward" size={20} color={c.textMuted} />
             </Card>

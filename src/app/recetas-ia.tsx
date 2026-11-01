@@ -33,7 +33,7 @@ function SuggestionCard({ s, onSave, onDismiss }: { s: AiSuggestion; onSave: () 
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.md }}>
         <View style={{ flex: 1 }}>
           <Text style={{ color: c.textMuted, fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 }}>
-            {MEAL_LABELS[s.meal]} · Idea de la IA
+            {MEAL_LABELS[s.meal]} · {s.by === 'app' ? 'Idea de la app' : 'Idea de la IA'}
           </Text>
           <Text style={{ color: c.text, fontSize: 18, fontWeight: '800' }}>{s.name}</Text>
         </View>
@@ -84,16 +84,27 @@ function SuggestionCard({ s, onSave, onDismiss }: { s: AiSuggestion; onSave: () 
 export default function RecetasIaScreen() {
   const c = useColors();
   const insets = useSafeAreaInsets();
-  const { hasApiKey, aiSuggestions, aiBusy, aiError, generate, acceptSuggestion, dismissSuggestion, pantry } = useStore();
+  const { hasApiKey, aiSuggestions, aiBusy, aiError, generate, generateFree, acceptSuggestion, dismissSuggestion, pantry } = useStore();
   const [target, setTarget] = useState<Target>('dia');
   const [notes, setNotes] = useState('');
   const [toast, showToast] = useToast(2600);
   const available = pantry.filter((p) => p.status !== 'agotado').length;
 
-  const create = async () => {
+  const plural = (n: number) => `${n} idea${n === 1 ? '' : 's'} nueva${n === 1 ? '' : 's'}`;
+
+  const createFree = () => {
+    const created = generateFree(TARGET_MEALS[target]);
+    showToast(
+      created.length
+        ? plural(created.length)
+        : 'No se me ocurre nada nuevo con lo que hay. Marca más productos en «Hay» o guarda/descarta las ideas de abajo.',
+    );
+  };
+
+  const createWithAi = async () => {
     try {
       const created = await generate(TARGET_MEALS[target], notes);
-      showToast(created.length ? `${created.length} receta${created.length === 1 ? '' : 's'} nueva${created.length === 1 ? '' : 's'}` : 'No salió ninguna receta nueva. Intenta de nuevo.');
+      showToast(created.length ? plural(created.length) : 'No salió ninguna receta nueva. Intenta de nuevo.');
     } catch {
       // El error se muestra en pantalla (aiError).
     }
@@ -101,46 +112,51 @@ export default function RecetasIaScreen() {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: c.background }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <Stack.Screen options={{ title: 'Recetas con IA' }} />
+      <Stack.Screen options={{ title: 'Ideas de recetas' }} />
       <ScrollView
         contentContainerStyle={{ padding: space.lg, gap: space.md, paddingBottom: insets.bottom + space.xl }}
         keyboardShouldPersistTaps="handled"
       >
-        {!hasApiKey ? (
-          <Card style={{ gap: space.md }}>
-            <Text style={{ color: c.text, fontSize: 15, lineHeight: 21 }}>
-              Para que la app invente recetas con lo que tienes, agrega tu clave de API de Anthropic en Ajustes.
+        <Card style={{ gap: space.md }}>
+          <Text style={{ color: c.text, fontSize: 15, lineHeight: 21 }}>
+            La app arma recetas con lo que tienes en "Hay" y "Queda poco" ({available} producto{available === 1 ? '' : 's'}),
+            empezando por lo que se está acabando. Los desayunos nunca llevan huevo.
+          </Text>
+          <SectionLabel>¿Para qué momento?</SectionLabel>
+          <Segmented<Target>
+            value={target}
+            onChange={setTarget}
+            options={[
+              { value: 'dia', label: 'Todo el día' },
+              { value: 'desayuno', label: 'Desayuno' },
+              { value: 'almuerzo', label: 'Almuerzo' },
+              { value: 'comida', label: 'Comida' },
+            ]}
+          />
+          {available < 3 ? (
+            <Text style={{ color: c.poco, fontSize: 14 }}>
+              Tienes muy pocos productos disponibles. Marca en la Despensa lo que hay para que salgan ideas.
             </Text>
-            <Button label="Ir a Ajustes" icon="settings-outline" onPress={() => router.push('/ajustes')} />
-          </Card>
-        ) : (
+          ) : null}
+          <Button label="Crear ideas gratis" icon="bulb-outline" onPress={createFree} />
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, justifyContent: 'center' }}>
+            <Ionicons name="checkmark-circle" size={16} color={c.hay} />
+            <Text style={{ color: c.textMuted, fontSize: 13 }}>Sin costo y sin internet</Text>
+          </View>
+        </Card>
+
+        {hasApiKey ? (
           <Card style={{ gap: space.md }}>
-            <Text style={{ color: c.text, fontSize: 15, lineHeight: 21 }}>
-              Claude mira lo que tienes en "Hay" y "Queda poco" ({available} producto{available === 1 ? '' : 's'}) y propone 3
-              recetas nuevas. Los desayunos nunca llevan huevo.
+            <Text style={{ color: c.text, fontSize: 16, fontWeight: '700' }}>Con IA de Claude (de pago)</Text>
+            <Text style={{ color: c.textMuted, fontSize: 14, lineHeight: 20 }}>
+              Recetas más variadas. Cada vez que tocas el botón se cobran unos centavos de dólar a tu cuenta de Anthropic.
             </Text>
-            <SectionLabel>¿Para qué momento?</SectionLabel>
-            <Segmented<Target>
-              value={target}
-              onChange={setTarget}
-              options={[
-                { value: 'dia', label: 'Todo el día' },
-                { value: 'desayuno', label: 'Desayuno' },
-                { value: 'almuerzo', label: 'Almuerzo' },
-                { value: 'comida', label: 'Comida' },
-              ]}
-            />
             <Field
               label="Indicaciones (opcional)"
               value={notes}
               onChangeText={setNotes}
               placeholder="Ej: rápido, sin horno, algo con pollo"
             />
-            {available < 3 ? (
-              <Text style={{ color: c.poco, fontSize: 14 }}>
-                Tienes muy pocos productos disponibles. Marca en la Despensa lo que hay para que las recetas sean útiles.
-              </Text>
-            ) : null}
             {aiError && !aiBusy ? <Text style={{ color: c.danger, fontSize: 14 }}>{aiError}</Text> : null}
             {aiBusy ? (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm, justifyContent: 'center', paddingVertical: space.sm }}>
@@ -148,10 +164,10 @@ export default function RecetasIaScreen() {
                 <Text style={{ color: c.textMuted, fontSize: 14 }}>Pensando recetas… puede tardar hasta un minuto</Text>
               </View>
             ) : (
-              <Button label="Crear recetas" icon="sparkles" onPress={create} />
+              <Button label="Crear con IA (de pago)" icon="sparkles-outline" variant="secondary" onPress={createWithAi} />
             )}
           </Card>
-        )}
+        ) : null}
 
         {aiSuggestions.length ? (
           <>
@@ -169,8 +185,8 @@ export default function RecetasIaScreen() {
               />
             ))}
           </>
-        ) : hasApiKey && !aiBusy ? (
-          <EmptyState icon="sparkles-outline" title="Aún no hay ideas" text="Toca «Crear recetas» para que la IA proponga algunas." />
+        ) : !aiBusy ? (
+          <EmptyState icon="bulb-outline" title="Aún no hay ideas" text="Toca «Crear ideas gratis» para ver qué puedes cocinar con lo que tienes." />
         ) : null}
       </ScrollView>
       <Toast message={toast} bottom={insets.bottom + 24} />

@@ -47,7 +47,7 @@ export default function RecetasScreen() {
       <Header
         title="Recetas"
         subtitle={cookableCount ? `${cookableCount} lista${cookableCount === 1 ? '' : 's'} para cocinar` : `${recipes.length} recetas`}
-        right={<IconButton icon="sparkles" label="Crear recetas con IA" color={c.primary} onPress={() => router.push('/recetas-ia')} />}
+        right={<IconButton icon="bulb-outline" label="Ideas de recetas" color={c.primary} onPress={() => router.push('/recetas-ia')} />}
       />
       <View style={{ paddingHorizontal: space.lg, gap: space.sm, paddingBottom: space.sm }}>
         <SearchBar value={query} onChangeText={setQuery} placeholder="Buscar receta" />
@@ -101,10 +101,10 @@ export default function RecetasScreen() {
               onPress={() => router.push('/recetas-ia')}
               style={{ flexDirection: 'row', alignItems: 'center', gap: space.md, marginBottom: space.md, borderColor: c.primary }}
             >
-              <Ionicons name="sparkles" size={22} color={c.primary} />
+              <Ionicons name="bulb" size={22} color={c.primary} />
               <Text style={{ color: c.text, fontSize: 15, fontWeight: '600', flex: 1 }}>
-                {aiSuggestions.length} idea{aiSuggestions.length === 1 ? '' : 's'} nueva{aiSuggestions.length === 1 ? '' : 's'} de la IA
-                con lo que tienes
+                {aiSuggestions.length} idea{aiSuggestions.length === 1 ? '' : 's'} nueva{aiSuggestions.length === 1 ? '' : 's'} de receta con
+                lo que tienes
               </Text>
               <Ionicons name="chevron-forward" size={20} color={c.textMuted} />
             </Card>

@@ -2,6 +2,7 @@ import type { Session } from '@supabase/supabase-js';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState } from 'react-native';
 import { AiError, generateRecipes, getApiKey, setApiKey } from './ai';
+import { createLocalRecipes } from './localChef';
 import * as cloud from './cloud';
 import { buildPantryIndex, findInPantry, isInMarket, nameKey } from './matching';
 import { fingerprint, mergeData } from './merge';
@@ -76,7 +77,10 @@ type Store = {
   aiError: string | null;
   saveApiKey: (key: string | null) => Promise<void>;
   setAutoRecipes: (on: boolean) => void;
+  /** Con Claude (de pago, requiere clave). Solo se llama cuando el usuario lo pide. */
   generate: (meals: Meal[], notes?: string) => Promise<AiSuggestion[]>;
+  /** Con el cocinero de la app: gratis y sin internet. */
+  generateFree: (meals: Meal[]) => AiSuggestion[];
   acceptSuggestion: (id: string) => string | null;
   dismissSuggestion: (id: string) => void;
 };
@@ -112,7 +116,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   // IA
   const [hasApiKey, setHasApiKey] = useState(false);
-  const [aiSettings, setAiSettings] = useState<AiSettings>({ auto: false });
+  const [aiSettings, setAiSettings] = useState<AiSettings>({ auto: true });
   const [aiSuggestions, setAiSuggestions] = useState<AiSuggestion[]>([]);
   const [aiBusy, setAiBusy] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
@@ -358,26 +362,53 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [updateSuggestions],
   );
 
-  // Modo automático: una vez al día propone desayuno, almuerzo y comida con lo que haya.
+  const generateFree = useCallback(
+    (meals: Meal[]) => {
+      const d = dataRef.current;
+      if (!d) return [];
+      const created = createLocalRecipes({
+        pantry: d.pantry,
+        recipes: d.recipes,
+        pending: aiSuggestionsRef.current,
+        meals,
+        seed: `${bogotaDateKey()}-${Date.now()}`,
+      });
+      updateSuggestions((list) => [...created, ...list].slice(0, 30));
+      return created;
+    },
+    [updateSuggestions],
+  );
+
+  // Modo automático (gratis): una vez al día la app propone desayuno, almuerzo y comida con lo que haya.
+  // Nunca usa la IA de pago.
   const aiSettingsRef = useRef(aiSettings);
   aiSettingsRef.current = aiSettings;
   useEffect(() => {
-    if (!data || !hasApiKey || !aiSettings.auto) return;
+    if (!data || !aiSettings.auto) return;
     const run = () => {
       const settings = aiSettingsRef.current;
+      const d = dataRef.current;
       const today = bogotaDateKey();
-      const available = (dataRef.current?.pantry ?? []).filter((p) => p.status !== 'agotado').length;
-      if (!settings.auto || settings.lastAutoRun === today || available < 3) return;
+      if (!d || !settings.auto || settings.lastAutoRun === today) return;
+      const created = createLocalRecipes({
+        pantry: d.pantry,
+        recipes: d.recipes,
+        pending: aiSuggestionsRef.current,
+        meals: ['desayuno', 'almuerzo', 'comida'],
+        seed: today,
+      });
+      // Si hoy no alcanzó para ninguna idea, se intenta otra vez al volver a abrir la app.
+      if (!created.length) return;
+      updateSuggestions((list) => [...created, ...list].slice(0, 30));
       const next = { ...settings, lastAutoRun: today };
       setAiSettings(next);
       saveAiSettings(next).catch(() => undefined);
-      generate(['desayuno', 'almuerzo', 'comida']).catch(() => undefined);
     };
     run();
     const sub = AppState.addEventListener('change', (s) => s === 'active' && run());
     return () => sub.remove();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [!!data, hasApiKey, aiSettings.auto, generate]);
+  }, [!!data, aiSettings.auto, updateSuggestions]);
 
   /* ---------------- Acciones ---------------- */
 
@@ -506,10 +537,17 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         saveAiSettings(next).catch(() => undefined);
       },
       generate,
+      generateFree,
       acceptSuggestion: (id) => {
         const s = aiSuggestions.find((x) => x.id === id);
         if (!s) return null;
-        const recipeId = saveRecipe({ name: s.name, meal: s.meal, ingredients: s.ingredients, steps: s.steps, source: 'ia' });
+        const recipeId = saveRecipe({
+          name: s.name,
+          meal: s.meal,
+          ingredients: s.ingredients,
+          steps: s.steps,
+          source: s.by === 'app' ? 'app' : 'ia',
+        });
         updateSuggestions((list) => list.filter((x) => x.id !== id));
         return recipeId;
       },
@@ -538,6 +576,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     aiBusy,
     aiError,
     generate,
+    generateFree,
     updateSuggestions,
   ]);
 

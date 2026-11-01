@@ -79,7 +79,7 @@ export type AiSettings = { auto: boolean; lastAutoRun?: string };
 
 export const loadAiSuggestions = () => loadJson<AiSuggestion[]>(AI_SUGGESTIONS_KEY, []);
 export const saveAiSuggestions = (list: AiSuggestion[]) => saveJson(AI_SUGGESTIONS_KEY, list);
-export const loadAiSettings = () => loadJson<AiSettings>(AI_SETTINGS_KEY, { auto: false });
+export const loadAiSettings = () => loadJson<AiSettings>(AI_SETTINGS_KEY, { auto: true });
 export const saveAiSettings = (s: AiSettings) => saveJson(AI_SETTINGS_KEY, s);
 
 /* ---------- Hogar en la nube ---------- */

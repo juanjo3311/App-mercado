@@ -43,8 +43,8 @@ export type Recipe = {
   ingredients: string[];
   steps: string[];
   updatedAt: number;
-  /** "ia" si la creó la inteligencia artificial */
-  source?: 'ia';
+  /** Quién la creó: "app" (gratis, sin internet) o "ia" (Claude, de pago) */
+  source?: 'ia' | 'app';
 };
 
 export const STATUS_LABELS: Record<Status, string> = {
@@ -67,11 +67,13 @@ export type AppData = {
   deleted: Record<string, number>;
 };
 
-/** Receta propuesta por la IA que todavía no se ha guardado. */
+/** Receta propuesta (por la app o por la IA) que todavía no se ha guardado. */
 export type AiSuggestion = Omit<Recipe, 'updatedAt' | 'source'> & {
-  /** Por qué la IA la propone (qué insumos aprovecha) */
+  /** Por qué se propone (qué insumos aprovecha) */
   why: string;
   createdAt: number;
+  /** "app": creada gratis por la app; "ia": creada por Claude (de pago). Las viejas no lo tienen → IA. */
+  by?: 'app' | 'ia';
 };
 
 /** Receta elegida para cada noche, por fecha de Bogotá (YYYY-MM-DD). */

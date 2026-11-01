@@ -252,9 +252,38 @@ function HouseholdCard() {
   );
 }
 
+function AutoIdeasSection() {
+  const c = useColors();
+  const { aiSettings, setAutoRecipes } = useStore();
+  return (
+    <Card style={{ gap: space.md }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.md }}>
+        <View style={{ flex: 1 }}>
+          <Text style={{ color: c.text, fontSize: 16, fontWeight: '700' }}>Ideas automáticas cada día</Text>
+          <Text style={{ color: c.textMuted, fontSize: 13, lineHeight: 18, marginTop: 2 }}>
+            Al abrir la app, una vez al día, la app arma un desayuno (sin huevo), un almuerzo y una comida con lo que hay
+            en la despensa, empezando por lo que se está acabando. Tú decides cuáles guardar.
+          </Text>
+        </View>
+        <Switch
+          value={aiSettings.auto}
+          onValueChange={setAutoRecipes}
+          trackColor={{ true: c.primary, false: c.border }}
+          thumbColor={Platform.OS === 'android' ? c.surface : undefined}
+          accessibilityLabel="Ideas automáticas cada día"
+        />
+      </View>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+        <Ionicons name="checkmark-circle" size={18} color={c.hay} />
+        <Text style={{ color: c.hay, fontSize: 14, fontWeight: '700', flexShrink: 1 }}>Gratis y sin internet: nunca usa la IA de pago</Text>
+      </View>
+    </Card>
+  );
+}
+
 function AiSection({ onMessage }: { onMessage: (m: string) => void }) {
   const c = useColors();
-  const { hasApiKey, saveApiKey, aiSettings, setAutoRecipes } = useStore();
+  const { hasApiKey, saveApiKey } = useStore();
   const [editing, setEditing] = useState(false);
   const [key, setKey] = useState('');
   const showForm = !hasApiKey || editing;
@@ -262,8 +291,9 @@ function AiSection({ onMessage }: { onMessage: (m: string) => void }) {
   return (
     <Card style={{ gap: space.md }}>
       <Text style={{ color: c.text, fontSize: 15, lineHeight: 21 }}>
-        La app le pide a Claude (IA de Anthropic) recetas nuevas con lo que tienes en la despensa. Necesita internet y
-        una clave de API de Anthropic, que cobra por uso (unos centavos de dólar por cada tanda de recetas).
+        Opcional. Si quieres recetas más variadas, Claude (IA de Anthropic) puede inventarlas con tu despensa. Necesita
+        internet y una clave de API de Anthropic, que cobra por uso (unos centavos de dólar cada vez). Solo se usa
+        cuando tocas «Crear con IA»; nunca de forma automática.
       </Text>
       {showForm ? (
         <>
@@ -278,7 +308,7 @@ function AiSection({ onMessage }: { onMessage: (m: string) => void }) {
           />
           <Text style={{ color: c.textMuted, fontSize: 13, lineHeight: 18 }}>
             Créala en console.anthropic.com › API Keys. Se guarda cifrada solo en este celular; no se sube a la nube del
-            hogar.
+            hogar. Sin clave, la app no gasta nada.
           </Text>
           <View style={{ flexDirection: 'row', gap: space.sm }}>
             {editing ? (
@@ -312,33 +342,12 @@ function AiSection({ onMessage }: { onMessage: (m: string) => void }) {
               style={{ flex: 1 }}
               onPress={async () => {
                 await saveApiKey(null);
-                setAutoRecipes(false);
-                onMessage('Clave borrada');
+                onMessage('Clave borrada: la app ya no puede gastar en IA');
               }}
             />
           </View>
         </>
       )}
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.md, opacity: hasApiKey ? 1 : 0.5 }}>
-        <View style={{ flex: 1 }}>
-          <Text style={{ color: c.text, fontSize: 16, fontWeight: '600' }}>Ideas automáticas cada día</Text>
-          <Text style={{ color: c.textMuted, fontSize: 13, lineHeight: 18 }}>
-            Al abrir la app, una vez al día, propone un desayuno (sin huevo), un almuerzo y una comida con lo que haya.
-            Tú decides cuáles guardar.
-          </Text>
-        </View>
-        <Switch
-          value={aiSettings.auto && hasApiKey}
-          disabled={!hasApiKey}
-          onValueChange={setAutoRecipes}
-          trackColor={{ true: c.primary, false: c.border }}
-          thumbColor={Platform.OS === 'android' ? c.surface : undefined}
-          accessibilityLabel="Ideas automáticas cada día"
-        />
-      </View>
-      {hasApiKey ? (
-        <Button label="Crear recetas ahora" icon="sparkles-outline" variant="ghost" onPress={() => router.push('/recetas-ia')} />
-      ) : null}
     </Card>
   );
 }
@@ -373,7 +382,12 @@ export default function AjustesScreen() {
         )}
 
         <View style={{ height: space.md }} />
-        <SectionLabel>Recetas con IA</SectionLabel>
+        <SectionLabel>Ideas de recetas</SectionLabel>
+        <AutoIdeasSection />
+        <Button label="Ver y crear ideas ahora" icon="bulb-outline" variant="ghost" onPress={() => router.push('/recetas-ia')} />
+
+        <View style={{ height: space.md }} />
+        <SectionLabel>IA de Claude (opcional, de pago)</SectionLabel>
         <AiSection onMessage={showToast} />
       </ScrollView>
       <Toast message={toast} bottom={insets.bottom + 24} />
