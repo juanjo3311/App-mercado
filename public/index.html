@@ -56,13 +56,30 @@
     <script>
       // El Service Worker (/sw.js) solo existe en la compilación de producción (npm run build:web).
       if ('serviceWorker' in navigator) {
+        // Si ya había una versión instalada y llega una nueva, se recarga una sola vez
+        // para mostrarla de inmediato (en iPhone, si no, hay que cerrar y abrir varias veces).
+        var hadController = !!navigator.serviceWorker.controller;
+        var reloading = false;
+        navigator.serviceWorker.addEventListener('controllerchange', function () {
+          if (!hadController || reloading) return;
+          reloading = true;
+          window.location.reload();
+        });
         window.addEventListener('load', function () {
           fetch('/sw.js', { method: 'HEAD', cache: 'no-store' })
             .then(function (res) {
               var type = res.headers.get('content-type') || '';
               if (res.ok && type.indexOf('javascript') !== -1) {
-                return navigator.serviceWorker.register('/sw.js');
+                return navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' });
               }
+            })
+            .then(function (reg) {
+              if (!reg) return;
+              reg.update().catch(function () {});
+              // La app del iPhone a veces se "despierta" sin recargar: buscar versión nueva al volver.
+              document.addEventListener('visibilitychange', function () {
+                if (document.visibilityState === 'visible') reg.update().catch(function () {});
+              });
             })
             .catch(function () {});
         });

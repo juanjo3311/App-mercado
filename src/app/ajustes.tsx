@@ -8,6 +8,7 @@ import * as cloud from '../lib/cloud';
 import { SyncStatus, useStore } from '../lib/store';
 import { space, useColors } from '../lib/theme';
 import { useToast } from '../lib/useToast';
+import { APP_VERSION } from '../lib/version';
 
 const SYNC_LABEL: Record<SyncStatus, string> = {
   off: 'Sin sincronizar',
@@ -389,6 +390,10 @@ export default function AjustesScreen() {
         <View style={{ height: space.md }} />
         <SectionLabel>IA de Claude (opcional, de pago)</SectionLabel>
         <AiSection onMessage={showToast} />
+
+        <Text style={{ color: c.textMuted, fontSize: 13, textAlign: 'center', marginTop: space.lg }}>
+          Versión {APP_VERSION}
+        </Text>
       </ScrollView>
       <Toast message={toast} bottom={insets.bottom + 24} />
     </KeyboardAvoidingView>
