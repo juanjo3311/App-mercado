@@ -3,9 +3,11 @@ import '../lib/background';
 import * as Notifications from 'expo-notifications';
 import { DarkTheme, DefaultTheme, router, Stack, ThemeProvider } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { ActivityIndicator, Platform, useColorScheme, View } from 'react-native';
+import { SafeAreaInsetsContext, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { registerBackgroundRefresh } from '../lib/background';
+import { useIosStandaloneTop } from '../lib/iosStandalone';
 import { configureNotificationHandler } from '../lib/notifications';
 import { StoreProvider, useStore } from '../lib/store';
 import { useColors } from '../lib/theme';
@@ -27,6 +29,17 @@ function useNotificationNavigation(ready: boolean) {
     const sub = Notifications.addNotificationResponseReceivedListener(open);
     return () => sub.remove();
   }, [ready]);
+}
+
+/**
+ * En la app web instalada en iPhone, asegura que nada quede debajo del reloj:
+ * corrige el margen superior que usan todas las pantallas y sus encabezados.
+ */
+function WebSafeArea({ children }: { children: ReactNode }) {
+  const insets = useSafeAreaInsets();
+  const statusBar = useIosStandaloneTop();
+  if (statusBar <= insets.top) return <>{children}</>;
+  return <SafeAreaInsetsContext.Provider value={{ ...insets, top: statusBar }}>{children}</SafeAreaInsetsContext.Provider>;
 }
 
 function RootNavigator() {
@@ -79,7 +92,9 @@ export default function RootLayout() {
     <ThemeProvider value={theme}>
       <StoreProvider>
         <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
-        <RootNavigator />
+        <WebSafeArea>
+          <RootNavigator />
+        </WebSafeArea>
       </StoreProvider>
     </ThemeProvider>
   );
