@@ -77,9 +77,17 @@ solo si ambos cambian el mismo producto gana el cambio más reciente.
 ## Ideas de recetas
 
 **Gratis (por defecto):** el cocinero de la app (`src/lib/localChef.ts`) reconoce qué es cada producto de la
-despensa (proteína, arroz, pasta, verdura, fruta, lácteo…) y lo combina con recetas base de cocina casera
-colombiana: arroz con…, sudado, sopa, pasta, ensalada, frijoles, salteado, arepa rellena, huevos pericos (nunca de
-desayuno) y desayunos como arepa con queso, fruta con yogurt, tostadas, batidos o avena. Solo usa lo que está en
+despensa (proteína, arroz, pasta, verdura, fruta, lácteo…) y lo combina con 38 recetas base de cocina casera
+colombiana:
+
+- **Almuerzo y comida (26):** arroz con…, arroz frito, sudado, pollo guisado, bistec encebollado, albóndigas en
+  salsa, hamburguesa casera, proteína a la plancha, salteado, sopa, ajiaco sencillo, crema de verduras, guiso de
+  lentejas o frijoles, frijoles con arroz, pasta en salsa de tomate, pasta en salsa blanca, pescado al horno,
+  pescado frito con patacón, patacones con hogao, maduro asado con queso, papas chorreadas, ensalada completa,
+  sándwich, arepa rellena, huevos pericos y tortilla de papa (estas dos nunca de desayuno).
+- **Desayuno (12, ninguno con huevo):** arepa con queso o jamón, arepa o tostadas con aguacate, tostadas, sándwich
+  caliente, calentado sin huevo, maduro con queso, agua de panela con queso, café o chocolate con galletas, fruta
+  con yogurt y granola, batido, avena caliente y avena fría con yogurt. Solo usa lo que está en
 "Hay" o "Queda poco" (más básicos como sal, aceite y ajo), da prioridad a lo que se está acabando y no repite
 recetas que ya tienes. No usa internet ni cuesta nada.
 
