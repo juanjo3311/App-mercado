@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { cleanData, fingerprint } from './merge';
 import { buildSeedData } from './seed';
 import { AiSuggestion, AppData, DinnerPlan, PantryItem, Recipe } from './types';
 
@@ -15,7 +16,12 @@ export async function loadData(): Promise<AppData> {
     if (raw) {
       const parsed = JSON.parse(raw);
       if ((parsed?.version === 1 || parsed?.version === 2) && Array.isArray(parsed.pantry) && Array.isArray(parsed.recipes)) {
-        if (parsed.version === 2) return parsed as AppData;
+        if (parsed.version === 2) {
+          // Quita repetidos que hayan quedado de versiones anteriores.
+          const clean = cleanData(parsed as AppData);
+          if (fingerprint(clean) !== fingerprint(parsed as AppData)) await saveData(clean);
+          return clean;
+        }
         // Versión 1 → 2: se agregan marcas de tiempo y el registro de borrados.
         const migrated: AppData = {
           version: 2,

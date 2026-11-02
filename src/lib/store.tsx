@@ -5,7 +5,7 @@ import { AiError, generateRecipes, getApiKey, setApiKey } from './ai';
 import { createLocalRecipes } from './localChef';
 import * as cloud from './cloud';
 import { buildPantryIndex, findInPantry, isInMarket, nameKey } from './matching';
-import { fingerprint, mergeData } from './merge';
+import { cleanData, fingerprint, mergeData } from './merge';
 import { getPermission, PermissionInfo, queueReschedule, requestPermission } from './notifications';
 import {
   AiSettings,
@@ -220,13 +220,22 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   // Al iniciar sesión, buscar el hogar de la cuenta.
   useEffect(() => {
     if (!account) return;
-    cloud
-      .fetchMyHousehold(account.userId)
-      .then((h) => {
-        setHousehold(h);
-        saveHousehold(h).catch(() => undefined);
-      })
-      .catch(() => setSyncStatus('offline'));
+    (async () => {
+      const h = await cloud.fetchMyHousehold(account.userId);
+      if (h && householdRef.current?.id !== h.id) {
+        // Este celular (o navegador) no estaba conectado a ese hogar: sus datos son una
+        // copia aparte. Se reemplazan por los de la nube en vez de combinarse, para no
+        // terminar con cada producto repetido.
+        const snap = await cloud.pullData(h.id);
+        if (snap.data) {
+          const remote = cleanData(snap.data);
+          setData(remote);
+          await saveData(remote);
+        }
+      }
+      setHousehold(h);
+      await saveHousehold(h);
+    })().catch(() => setSyncStatus('offline'));
   }, [account]);
 
   const syncing = useRef(false);
