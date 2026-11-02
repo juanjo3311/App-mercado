@@ -51,7 +51,10 @@ Se usa Supabase (plan gratis).
 3. Ve a **Authentication › Sign In / Providers › Email** y apaga **Confirm email** (así la cuenta queda lista al
    crearla, sin tener que abrir el correo en el celular). Si prefieres dejarlo encendido, después de crear la cuenta
    abre el enlace del correo y luego inicia sesión en la app.
-4. Ve a **Project Settings › API** y copia la **Project URL** y la **anon public key**.
+4. Ve a **Project Settings › API Keys** y copia la **Project URL** y la **Publishable key**
+   (o la *anon* en "Legacy API keys").
+   La app ya trae conectado el proyecto de la casa (`src/lib/supabase.ts`); estos pasos solo hacen falta
+   para usar otro proyecto.
 5. En la carpeta del proyecto copia `.env.example` como `.env` y pega esos dos valores.
    `npx expo start` y `npm run build:web` los toman de ahí.
 6. Para los builds de EAS (el `.env` no se sube), agrégalos en `eas.json` dentro de cada perfil que uses:
