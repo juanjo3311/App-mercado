@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "Ritmo",
+    "slug": "ritmo-habitos",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "ritmo",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.juanjo.ritmo",
+      "infoPlist": { "ITSAppUsesNonExemptEncryption": false }
+    },
+    "android": {
+      "package": "com.juanjo.ritmo",
+      "predictiveBackGestureEnabled": false
+    },
+    "web": { "output": "single" },
+    "plugins": [
+      "expo-router",
+      ["expo-notifications", { "color": "#E2725B" }]
+    ]
+  }
+}
